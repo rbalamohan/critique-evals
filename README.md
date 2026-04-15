@@ -1,30 +1,34 @@
 # Critique Evals - Agent Pair Evaluation Framework
 
-Framework for evaluating code generation with critique across different agent pairs. Compare which combinations of coder + critic agents work best.
+Framework for evaluating code generation with critique across different LLM provider pairs. Measures **critic agreement and disagreement** to understand which agent pairs produce consistent, high-quality feedback.
 
 ## Overview
 
-Test all combinations of coding and critique agents:
+Tests all combinations of coder and critic agents on logistics SQL generation tasks:
 
-- **Claude coder + Claude critic**
-- **Claude coder + GPT critic**
-- **GPT coder + Claude critic**
-- **GPT coder + GPT critic**
+- **Claude coder + Claude critic** - Both Claude Sonnet 4.6
+- **Claude coder + GPT critic** - Claude codes, GPT critiques
+- **GPT coder + Claude critic** - GPT codes, Claude critiques
+- **GPT coder + GPT critic** - Both GPT 5.4
 
-Measures quality of generated code and effectiveness of critique feedback.
+**Key insight**: By running coders first and then having all critics evaluate the same generated code, we isolate **critic quality** from coder quality and can measure whether critics agree or disagree on the same outputs.
 
-## Supported Providers
+## Models
 
-- **Claude** (Anthropic)
-- **GPT** (OpenAI)
+- **Claude**: `claude-sonnet-4-6`
+- **GPT**: `gpt-5.4`
 
 ## Installation
 
-Requires Python 3.14+.
+Requires Python 3.14+ and API keys.
 
 ```bash
 cd critique-evals
 uv sync
+
+# Set API keys
+export ANTHROPIC_API_KEY="your-key"
+export OPENAI_API_KEY="your-key"
 ```
 
 ## Usage
@@ -33,57 +37,96 @@ uv sync
 # List available test cases
 uv run critique --list
 
-# Run with specific coder/critic pair
-uv run critique -t code_generation --coder claude --critic claude
+# Run all pairs (default) - Phase 1: coders, Phase 2: critics on same code
+uv run critique -t sql_basic_query
 
-# Run with all pairs for a test
-uv run critique -t code_generation --all-pairs
+# Run with custom output directory
+uv run critique -t sql_optimization -o results/
 
-# Run multiple iterations
-uv run critique -t code_generation --coder claude --critic gpt -n 5
+# Run multiple iterations (new coder outputs each time)
+uv run critique -t sql_complex_query -n 3
 
-# Output directory
-uv run critique -t code_generation --coder claude --critic claude -o results/
+# Run specific pair only
+uv run critique -t sql_basic_query --coder claude --critic gpt
 ```
 
 ## Test Cases
 
-Define tasks with expected outputs that agents will attempt:
+All test cases use logistics domain knowledge (Snowflake SQL):
 
 | Test Case | Description |
 |-----------|-------------|
-| `code_generation` | Generate code to solve a problem |
-| `algorithm_implementation` | Implement a specific algorithm |
-| `refactoring` | Improve existing code |
-| `bug_fixing` | Fix bugs in provided code |
+| `sql_basic_query` | Basic task retrieval with dynamic date calculations |
+| `sql_complex_query` | Complex filtering, aggregation, and joins |
+| `sql_edge_cases` | Handle NULL values and data quality issues |
+| `sql_optimization` | Optimize a subquery-based approach with joins |
 
-## Agent Pair Variations
+## Evaluation Format
 
-| Coder | Critic | Notes |
-|-------|--------|-------|
-| claude | claude | Homogeneous: Both Claude |
-| gpt | gpt | Homogeneous: Both GPT |
-| claude | gpt | Cross: Claude codes, GPT critiques |
-| gpt | claude | Cross: GPT codes, Claude critiques |
+Critics evaluate code with **SATISFACTORY** or **UNSATISFACTORY** verdicts:
+
+```
+SATISFACTORY
+Reason: The query correctly counts successful tasks in the last 30 days grouped by executor.
+```
+
+This simplified format enables quick comparison of critic verdicts across providers.
 
 ## Output Structure
 
-Each run produces:
-- `run_record.json` - Metadata (coder, critic, tokens, iterations)
-- `trace.jsonl` - Full conversation trace between coder and critic
-- `generated_code.py` - The generated code
-- `critique.md` - Critique feedback from critic agent
-- `metrics.json` - Performance metrics
+Organized by test case → coder+critic pair → timestamp:
+
+```
+output/sql_basic_query/
+├── claude_coder_claude_critic/
+│   └── 20260414_225000/
+│       ├── generated_code.py      # SQL from coder
+│       ├── critique.md             # Verdict + reason from critic
+│       └── run_record.json         # Tokens, timing, metadata
+├── claude_coder_gpt_critic/
+├── gpt_coder_claude_critic/
+├── gpt_coder_gpt_critic/
+└── summary.json                    # Aggregated results
+```
+
+**summary.json** includes:
+- `coder_tokens` / `critic_tokens` - Token usage per agent
+- `coder_time_seconds` / `critic_time_seconds` - Separate timing
+- `wall_time_seconds` - Total run time
 
 ## CLI Options
 
 ```
---testcase, -t      Test case name
---coder             Coder agent provider (claude or gpt)
---critic            Critic agent provider (claude or gpt)
---all-pairs         Test all coder/critic combinations
+--testcase, -t      Test case name (required)
+--coder             Coder provider (claude or gpt) - optional, runs all pairs by default
+--critic            Critic provider (claude or gpt) - optional, runs all pairs by default
 --iterations, -n    Iterations per pair (default: 1)
 --output-root, -o   Output directory (default: output)
 --list              List available test cases
---debug             Enable debug output
+--debug             Enable debug logging
 ```
+
+**Default behavior**: Runs all 4 coder/critic pairs unless `--coder` and `--critic` are both specified.
+
+## Analyzing Results
+
+### Finding Disagreement
+
+When the same code gets different verdicts from different critics:
+
+```bash
+# sql_optimization example:
+# GPT coder → Claude critic: UNSATISFACTORY (bad reasoning)
+# GPT coder → GPT critic:    SATISFACTORY (good optimization)
+# → Disagreement between critics on same code
+```
+
+This reveals how critic evaluation styles differ across providers.
+
+### Comparing Critic Performance
+
+Use `summary.json` to analyze:
+- Which critics are most/least strict
+- Whether critics agree or disagree frequently
+- Token efficiency (cheaper vs expensive critics)
+- Speed (fast vs slow critics)

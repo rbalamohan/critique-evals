@@ -153,9 +153,8 @@ def main() -> None:
         prog="critique",
     )
     parser.add_argument("--testcase", "-t", help="Test case name")
-    parser.add_argument("--coder", type=str, choices=["claude", "gpt"], help="Coder provider")
-    parser.add_argument("--critic", type=str, choices=["claude", "gpt"], help="Critic provider")
-    parser.add_argument("--all-pairs", action="store_true", help="Test all coder/critic pairs")
+    parser.add_argument("--coder", type=str, choices=["claude", "gpt"], help="Coder provider (optional, runs all pairs by default)")
+    parser.add_argument("--critic", type=str, choices=["claude", "gpt"], help="Critic provider (optional, runs all pairs by default)")
     parser.add_argument("--coder-model", default="", help="Override coder model")
     parser.add_argument("--critic-model", default="", help="Override critic model")
     parser.add_argument("--iterations", "-n", type=int, default=1, help="Iterations per pair")
@@ -179,12 +178,12 @@ def main() -> None:
         parser.error("--testcase is required (use --list to see available test cases)")
 
     # Determine which pairs to test
-    if args.all_pairs:
-        pairs = ALL_PROVIDER_PAIRS
-    elif args.coder and args.critic:
+    if args.coder and args.critic:
+        # Specific pair requested
         pairs = [(cast(Provider, args.coder), cast(Provider, args.critic))]
     else:
-        parser.error("Specify --coder and --critic, or use --all-pairs")
+        # Default: run all pairs
+        pairs = ALL_PROVIDER_PAIRS
 
     base_dir = Path.cwd()
     all_records: list[PairEvalRecord] = []

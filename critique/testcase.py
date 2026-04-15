@@ -50,7 +50,7 @@ Calculate the average number of tasks per driver per day for organizations in th
 during Q1 2026. Only include organizations with route optimization enabled.
 Filter to tasks that were completed (not pending).
 
-Return the query, explain the joins and filtering logic, and note any data quality considerations.""",
+IMPORTANT: Return ONLY the raw SQL query. No markdown, no code blocks, no explanation. Just the SELECT statement.""",
 )
 
 SQL_EDGE_CASES = TestCase(
@@ -61,21 +61,17 @@ SQL_EDGE_CASES = TestCase(
 
 Identify tasks with missing or NULL failure reasons that were marked as unsuccessful (SUCCESS=FALSE).
 Include the organization name, task ID, completion time, and any available notes.
-Sort by completion time DESC.
+Sort by completion time DESC. Use EXECUTOR_ID for the executor organization reference.
 
-Explain:
-1. Why NULL failure reasons are valid data (per schema documentation)
-2. How you're handling the EXECUTOR_ID vs ORGANIZATION_ID distinction
-3. What the business implications might be""",
+IMPORTANT: Return ONLY the raw SQL query. No markdown, no code blocks, no explanation. Just the SELECT statement.""",
 )
 
 SQL_OPTIMIZATION = TestCase(
     name="sql_optimization",
     description="Optimize SQL query performance and readability",
     domain_context=_SME_CONTEXT,
-    prompt="""Here's a logistics SQL query that works but may not be optimal:
+    prompt="""Rewrite this logistics SQL query to be more efficient and readable:
 
-```sql
 SELECT o.NAME, COUNT(*) as task_count
 FROM PRODUCTION_ANALYTICS.ANALYTICS.ORGANIZATIONS o
 WHERE o.ID IN (
@@ -84,14 +80,10 @@ WHERE o.ID IN (
 )
 GROUP BY o.ID, o.NAME
 ORDER BY task_count DESC;
-```
 
-Rewrite this query to be more efficient. Consider:
-1. Index usage and join strategy
-2. Snowflake-specific optimizations
-3. Readability and maintainability
+Consider index usage, join strategy, Snowflake-specific optimizations, and readability.
 
-Provide the optimized query and explain what changed and why.""",
+IMPORTANT: Return ONLY the raw SQL query. No markdown, no code blocks, no explanation. Just the SELECT statement.""",
 )
 
 # Registry
