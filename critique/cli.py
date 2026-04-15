@@ -4,14 +4,12 @@ import argparse
 import json
 import logging
 import random
-import time
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, cast
 
 from critique.config import (
-    PairRunConfig,
     ALL_PROVIDER_PAIRS,
     Provider,
     DEFAULT_MODELS,
@@ -27,134 +25,6 @@ from critique.analysis import (
     print_final_report,
 )
 from critique.corruptor import corrupt_sql
-
-
-def _run_single_old(config: PairRunConfig, run_dir: Path) -> PairEvalRecord:
-    """Run one agent pair evaluation."""
-    run_dir.mkdir(parents=True, exist_ok=True)
-
-    # Set up logging
-    if not config.debug:
-        logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
-        for handler in logger.handlers:
-            if isinstance(handler, logging.StreamHandler) and not isinstance(
-                handler, logging.FileHandler
-            ):
-                handler.setLevel(logging.WARNING)
-        file_handler = logging.FileHandler(run_dir / "debug.log")
-        file_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    t0 = time.time()
-
-    try:
-        # Get test case
-        testcase = get_testcase(config.testcase)
-
-        # Create runners
-        coder_runner, critic_runner = create_runner(config.coder_provider, config.critic_provider)
-
-        # Run coder
-        print(f"\n--- Coder: {config.coder_provider} ({config.coder_model_resolved()}) ---")
-        coder_response = coder_runner.generate_code(
-            config.coder_model_resolved(), testcase.prompt, system_context=testcase.domain_context
-        )
-        print(f"Tokens: {coder_response.total_tokens} | Time: {coder_response.duration_seconds:.2f}s")
-        if coder_response.error:
-            print(f"Error: {coder_response.error}")
-
-        # Run critic
-        print(f"\n--- Critic: {config.critic_provider} ({config.critic_model_resolved()}) ---")
-        critic_response = critic_runner.critique_code(
-            config.critic_model_resolved(),
-            coder_response.output,
-            task=testcase.name,
-            system_context=testcase.domain_context,
-        )
-        print(f"Tokens: {critic_response.total_tokens} | Time: {critic_response.duration_seconds:.2f}s")
-        if critic_response.error:
-            print(f"Error: {critic_response.error}")
-
-        # Build record
-        record = PairEvalRecord(
-            testcase=config.testcase,
-            coder_provider=config.coder_provider,
-            critic_provider=config.critic_provider,
-            coder_model=config.coder_model_resolved(),
-            critic_model=config.critic_model_resolved(),
-            wall_time_seconds=time.time() - t0,
-            coder_response=coder_response,
-            critic_response=critic_response,
-        )
-
-        # Save outputs
-        _save_outputs(run_dir, record, coder_response.output, critic_response.output)
-
-        return record
-
-    except Exception as e:
-        duration = time.time() - t0
-        record = PairEvalRecord(
-            testcase=config.testcase,
-            coder_provider=config.coder_provider,
-            critic_provider=config.critic_provider,
-            coder_model=config.coder_model_resolved(),
-            critic_model=config.critic_model_resolved(),
-            wall_time_seconds=duration,
-            error=str(e),
-        )
-        print(f"\nError: {e}")
-        return record
-
-
-def _save_outputs(run_dir: Path, record: PairEvalRecord, code: str, critique: str) -> None:
-    """Save run outputs to files."""
-    run_dir.mkdir(parents=True, exist_ok=True)
-
-    # Save code
-    if code:
-        code_path = run_dir / "generated_code.py"
-        with open(code_path, "w") as f:
-            f.write(code)
-        record.output_files.append(str(code_path))
-
-    # Save critique
-    if critique:
-        critique_path = run_dir / "critique.md"
-        with open(critique_path, "w") as f:
-            f.write(critique)
-        record.output_files.append(str(critique_path))
-
-    # Save record
-    record_path = run_dir / "run_record.json"
-    record_dict: dict[str, Any] = {
-        "testcase": record.testcase,
-        "coder_provider": record.coder_provider,
-        "critic_provider": record.critic_provider,
-        "coder_model": record.coder_model,
-        "critic_model": record.critic_model,
-        "wall_time_seconds": record.wall_time_seconds,
-        "error": record.error,
-        "output_files": record.output_files,
-    }
-    if record.coder_response:
-        record_dict["coder"] = {
-            "tokens_in": record.coder_response.tokens_in,
-            "tokens_out": record.coder_response.tokens_out,
-            "error": record.coder_response.error,
-        }
-    if record.critic_response:
-        record_dict["critic"] = {
-            "tokens_in": record.critic_response.tokens_in,
-            "tokens_out": record.critic_response.tokens_out,
-            "error": record.critic_response.error,
-        }
-
-    with open(record_path, "w") as f:
-        json.dump(record_dict, f, indent=2)
 
 
 def main() -> None:
