@@ -101,6 +101,7 @@ output/sql_basic_query/
 --coder             Coder provider (claude or gpt) - optional, runs all pairs by default
 --critic            Critic provider (claude or gpt) - optional, runs all pairs by default
 --iterations, -n    Iterations (repeat coder and critic runs, default: 1)
+--corrupt           Inject SQL errors before critique (random, join, group, date, all)
 --output-root, -o   Output directory (default: output)
 --list              List available test cases
 --debug             Enable debug logging
@@ -121,6 +122,33 @@ uv run critique -t sql_basic_query -n 3
 The reports will show:
 - **Coder Inconsistency**: Code similarity % between runs, overall inconsistency rate
 - **Critic Inconsistency**: Sentiment flip rate (positive→negative or vice versa), consistency %
+
+## Testing Critic Reliability
+
+Use `--corrupt` to inject intentional SQL errors and measure if critics catch them:
+
+```bash
+# Test if critics catch join condition errors
+uv run critique -t sql_basic_query --corrupt join
+
+# Test if critics catch GROUP BY issues
+uv run critique -t sql_optimization --corrupt group
+
+# Test multiple error types
+uv run critique -t sql_basic_query --corrupt all
+
+# Combine with iterations to test consistency
+uv run critique -t sql_complex_query --corrupt random -n 3
+```
+
+**Corruption types:**
+- `join`: Changes join conditions (EXECUTOR_ID → CREATOR_ID)
+- `group`: Removes required columns from GROUP BY
+- `date`: Uses wrong date function (DATE_SUB → DATEADD)
+- `random`: Picks a random error type
+- `all`: Applies all three error types
+
+Each run saves both the corrupted code and original code for comparison.
 
 ## Analyzing Results
 
