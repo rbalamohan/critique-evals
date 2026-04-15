@@ -23,6 +23,7 @@ from critique.analysis import (
     build_disagreement_matrix,
     analyze_coder_inconsistency,
     analyze_critic_inconsistency,
+    analyze_critic_quality_on_corruption,
     print_final_report,
 )
 from critique.corruptor import corrupt_sql
@@ -366,6 +367,10 @@ def main() -> None:
         if args.iterations > 1:
             analyze_coder_inconsistency(output_root_path, args.testcase)
             analyze_critic_inconsistency(output_root_path, args.testcase)
+
+        # Print corruption quality analysis if applicable
+        if args.corrupt:
+            analyze_critic_quality_on_corruption(output_root_path, args.testcase)
 
         # Print final comprehensive report
         print_final_report(output_root_path, args.testcase)

@@ -1,5 +1,6 @@
 """Analyze critique evaluation results and generate disagreement matrices."""
 
+import json
 from pathlib import Path
 from collections import defaultdict
 from dataclasses import dataclass
@@ -305,6 +306,77 @@ def analyze_critic_inconsistency(output_root: Path, testcase: str) -> None:
         flip_rate = flips / (len(assessments) * (len(assessments) - 1) / 2) if len(assessments) > 1 else 0
         print(f"\n  Flip rate: {flip_rate:.2%}")
         print(f"  Consistency: {(1 - flip_rate):.2%}")
+    print("\n" + "=" * 80)
+
+
+def analyze_critic_quality_on_corruption(output_root: Path, testcase: str) -> None:
+    """Analyze which critics accepted corrupted code (signs of poor quality)."""
+    testcase_dir = output_root / testcase
+
+    if not testcase_dir.exists():
+        return
+
+    # Collect corruption results
+    corruption_results: dict[str, dict[str, list[bool]]] = defaultdict(lambda: defaultdict(list))
+    # corruption_results[coder][critic] = [accepted_corrupt_1, accepted_corrupt_2, ...]
+
+    for pair_dir in testcase_dir.iterdir():
+        if not pair_dir.is_dir() or pair_dir.name == "summary.json":
+            continue
+
+        parts = pair_dir.name.split("_coder_")
+        if len(parts) != 2:
+            continue
+
+        coder = parts[0]
+        critic_parts = parts[1].split("_critic")
+        if len(critic_parts) < 1:
+            continue
+        critic = critic_parts[0]
+
+        run_dirs = sorted([d for d in pair_dir.iterdir() if d.is_dir()])
+
+        for run_dir in run_dirs:
+            # Check if run was corrupted
+            record_path = run_dir / "run_record.json"
+            if not record_path.exists():
+                continue
+
+            with open(record_path) as f:
+                record = json.load(f)
+
+            if not record.get("corrupted"):
+                continue
+
+            # Check if critic accepted the corrupted code
+            critique_path = run_dir / "critique.md"
+            if critique_path.exists():
+                with open(critique_path) as f:
+                    critique_text = f.read().lower()
+                    # Check for positive assessment indicators
+                    accepted = any(word in critique_text for word in ["good", "correct", "valid", "proper", "excellent", "satisfactory"])
+                    corruption_results[coder][critic].append(accepted)
+
+    if not corruption_results:
+        return
+
+    print("\n" + "=" * 80)
+    print("CRITIC QUALITY ON CORRUPTED CODE")
+    print("=" * 80)
+    print("\n(Accepting corrupted code = poor quality critic)")
+    print()
+
+    for coder in sorted(corruption_results.keys()):
+        print(f"\n{coder.upper()} Coder - Corruption Acceptance Rates:")
+        print("-" * 50)
+
+        for critic in sorted(corruption_results[coder].keys()):
+            results = corruption_results[coder][critic]
+            if results:
+                acceptance_rate = sum(results) / len(results)
+                status = "🚨 POOR" if acceptance_rate > 0.5 else "⚠️  WEAK" if acceptance_rate > 0.2 else "✓ GOOD"
+                print(f"  {critic.upper()}: {acceptance_rate:.0%} accepted corrupted code {status}")
+
     print("\n" + "=" * 80)
 
 
