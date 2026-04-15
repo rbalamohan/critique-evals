@@ -353,8 +353,13 @@ def analyze_critic_quality_on_corruption(output_root: Path, testcase: str) -> No
             if critique_path.exists():
                 with open(critique_path) as f:
                     critique_text = f.read().lower()
-                    # Check for positive assessment indicators
-                    accepted = any(word in critique_text for word in ["good", "correct", "valid", "proper", "excellent", "satisfactory"])
+                    # Check for negative indicators first
+                    rejected = any(word in critique_text for word in ["unsatisfactory", "incorrect", "wrong", "error", "issue", "problem", "invalid"])
+                    # If not explicitly rejected, check for positive indicators
+                    if not rejected:
+                        accepted = any(word in critique_text for word in ["satisfactory", "correct", "valid", "proper", "excellent", "good"])
+                    else:
+                        accepted = False
                     corruption_results[coder][critic].append(accepted)
 
     if not corruption_results:
