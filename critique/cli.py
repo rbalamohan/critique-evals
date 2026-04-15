@@ -22,6 +22,7 @@ from critique.analysis import (
     build_disagreement_matrix,
     analyze_coder_inconsistency,
     analyze_critic_inconsistency,
+    print_final_report,
 )
 
 
@@ -342,6 +343,9 @@ def main() -> None:
         if args.iterations > 1:
             analyze_coder_inconsistency(output_root_path, args.testcase)
             analyze_critic_inconsistency(output_root_path, args.testcase)
+
+        # Print final comprehensive report
+        print_final_report(output_root_path, args.testcase)
 
 
 if __name__ == "__main__":
