@@ -163,9 +163,7 @@ def main() -> None:
     parser.add_argument("--critic", type=str, choices=["claude", "gpt"], help="Critic provider (optional, runs all pairs by default)")
     parser.add_argument("--coder-model", default="", help="Override coder model")
     parser.add_argument("--critic-model", default="", help="Override critic model")
-    parser.add_argument("--iterations", "-n", type=int, default=1, help="Iterations per pair")
-    parser.add_argument("--repeat-coder", type=int, default=1, help="Repeat coder runs to measure inconsistency")
-    parser.add_argument("--repeat-critic", type=int, default=1, help="Repeat critic runs to measure inconsistency")
+    parser.add_argument("--iterations", "-n", type=int, default=1, help="Iterations (repeat coder and critic runs)")
     parser.add_argument("--output-root", "-o", default="output", help="Output directory")
     parser.add_argument("--list", action="store_true", help="List available test cases")
     parser.add_argument("--debug", action="store_true", help="Enable debug output")
@@ -209,9 +207,9 @@ def main() -> None:
         coder_runner, _ = create_runner(coder_prov, "gpt")  # critic provider doesn't matter for coder
 
         print(f"\n--- Coder: {coder_prov} ---")
-        for repeat_idx in range(args.repeat_coder):
-            if args.repeat_coder > 1:
-                print(f"  Run {repeat_idx + 1}/{args.repeat_coder}")
+        for repeat_idx in range(args.iterations):
+            if args.iterations > 1:
+                print(f"  Run {repeat_idx + 1}/{args.iterations}")
             coder_response = coder_runner.generate_code(
                 DEFAULT_MODELS[coder_prov], testcase.prompt, system_context=testcase.domain_context
             )
@@ -228,84 +226,81 @@ def main() -> None:
 
     for coder_prov, critic_prov in pairs:
         for coder_run_idx, code_output in enumerate(coder_outputs[coder_prov]):
-            for iteration in range(args.iterations):
-                for repeat_critic_idx in range(args.repeat_critic):
-                    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    pair_name = f"{coder_prov}_coder_{critic_prov}_critic"
-                    run_dir = base_dir / args.output_root / args.testcase / pair_name / ts
+            for critic_run_idx in range(args.iterations):
+                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                pair_name = f"{coder_prov}_coder_{critic_prov}_critic"
+                run_dir = base_dir / args.output_root / args.testcase / pair_name / ts
 
-                    if args.iterations > 1 or len(pairs) > 1 or args.repeat_coder > 1 or args.repeat_critic > 1:
-                        print(f"\n{'#' * 60}")
-                        print(f"  Coder: {coder_prov} → Critic: {critic_prov}")
-                        if args.repeat_coder > 1:
-                            print(f"  Coder run {coder_run_idx + 1}/{args.repeat_coder}")
-                        if args.iterations > 1:
-                            print(f"  Iteration {iteration + 1}/{args.iterations}")
-                        if args.repeat_critic > 1:
-                            print(f"  Critic run {repeat_critic_idx + 1}/{args.repeat_critic}")
-                        print(f"{'#' * 60}")
+                if args.iterations > 1 or len(pairs) > 1:
+                    print(f"\n{'#' * 60}")
+                    print(f"  Coder: {coder_prov} → Critic: {critic_prov}")
+                    if len(coder_outputs[coder_prov]) > 1:
+                        print(f"  Coder run {coder_run_idx + 1}/{len(coder_outputs[coder_prov])}")
+                    if args.iterations > 1:
+                        print(f"  Critic run {critic_run_idx + 1}/{args.iterations}")
+                    print(f"{'#' * 60}")
 
-                    # Run critic on the coder's output
-                    _, critic_runner = create_runner("gpt", critic_prov)  # coder provider doesn't matter
+                # Run critic on the coder's output
+                _, critic_runner = create_runner("gpt", critic_prov)  # coder provider doesn't matter
 
-                    print(f"\n--- Critic: {critic_prov} ({DEFAULT_MODELS[critic_prov]}) ---")
-                    critic_response = critic_runner.critique_code(
-                        DEFAULT_MODELS[critic_prov],
-                        code_output,
-                        task=args.testcase,
-                        system_context=testcase.domain_context,
-                    )
-                    print(f"Tokens: {critic_response.total_tokens} | Time: {critic_response.duration_seconds:.2f}s")
-                    if critic_response.error:
-                        print(f"Error: {critic_response.error}")
+                print(f"\n--- Critic: {critic_prov} ({DEFAULT_MODELS[critic_prov]}) ---")
+                critic_response = critic_runner.critique_code(
+                    DEFAULT_MODELS[critic_prov],
+                    code_output,
+                    task=args.testcase,
+                    system_context=testcase.domain_context,
+                )
+                print(f"Tokens: {critic_response.total_tokens} | Time: {critic_response.duration_seconds:.2f}s")
+                if critic_response.error:
+                    print(f"Error: {critic_response.error}")
 
-                    # Create record
-                    record = PairEvalRecord(
-                        testcase=args.testcase,
-                        coder_provider=coder_prov,
-                        critic_provider=critic_prov,
-                        coder_model=DEFAULT_MODELS[coder_prov],
-                        critic_model=DEFAULT_MODELS[critic_prov],
-                        wall_time_seconds=critic_response.duration_seconds,
-                        critic_response=critic_response,
-                    )
+                # Create record
+                record = PairEvalRecord(
+                    testcase=args.testcase,
+                    coder_provider=coder_prov,
+                    critic_provider=critic_prov,
+                    coder_model=DEFAULT_MODELS[coder_prov],
+                    critic_model=DEFAULT_MODELS[critic_prov],
+                    wall_time_seconds=critic_response.duration_seconds,
+                    critic_response=critic_response,
+                )
 
-                    # Save outputs
-                    run_dir.mkdir(parents=True, exist_ok=True)
-                    code_path = run_dir / "generated_code.py"
-                    with open(code_path, "w") as f:
-                        f.write(code_output)
+                # Save outputs
+                run_dir.mkdir(parents=True, exist_ok=True)
+                code_path = run_dir / "generated_code.py"
+                with open(code_path, "w") as f:
+                    f.write(code_output)
 
-                    critique_path = run_dir / "critique.md"
-                    with open(critique_path, "w") as f:
-                        f.write(critic_response.output)
+                critique_path = run_dir / "critique.md"
+                with open(critique_path, "w") as f:
+                    f.write(critic_response.output)
 
-                    # Save record
-                    record_path = run_dir / "run_record.json"
-                    record_dict: dict[str, Any] = {
-                        "testcase": record.testcase,
-                        "coder_provider": record.coder_provider,
-                        "critic_provider": record.critic_provider,
-                        "coder_model": record.coder_model,
-                        "critic_model": record.critic_model,
-                        "wall_time_seconds": record.wall_time_seconds,
-                        "error": record.error,
-                        "coder_run": coder_run_idx,
-                        "critic_run": repeat_critic_idx,
+                # Save record
+                record_path = run_dir / "run_record.json"
+                record_dict: dict[str, Any] = {
+                    "testcase": record.testcase,
+                    "coder_provider": record.coder_provider,
+                    "critic_provider": record.critic_provider,
+                    "coder_model": record.coder_model,
+                    "critic_model": record.critic_model,
+                    "wall_time_seconds": record.wall_time_seconds,
+                    "error": record.error,
+                    "coder_run": coder_run_idx,
+                    "critic_run": critic_run_idx,
+                }
+                if critic_response:
+                    record_dict["critic"] = {
+                        "tokens_in": critic_response.tokens_in,
+                        "tokens_out": critic_response.tokens_out,
+                        "error": critic_response.error,
                     }
-                    if critic_response:
-                        record_dict["critic"] = {
-                            "tokens_in": critic_response.tokens_in,
-                            "tokens_out": critic_response.tokens_out,
-                            "error": critic_response.error,
-                        }
 
-                    with open(record_path, "w") as f:
-                        json.dump(record_dict, f, indent=2)
+                with open(record_path, "w") as f:
+                    json.dump(record_dict, f, indent=2)
 
-                    print("\n" + "=" * 60)
-                    print(f"Coder: {coder_prov} | Critic: {critic_prov} | {critic_response.output[:50]}")
-                    all_records.append(record)
+                print("\n" + "=" * 60)
+                print(f"Coder: {coder_prov} | Critic: {critic_prov} | {critic_response.output[:50]}")
+                all_records.append(record)
 
     # Print summary table
     if all_records:
@@ -344,9 +339,8 @@ def main() -> None:
         build_disagreement_matrix(output_root_path, args.testcase)
 
         # Print inconsistency analyses if applicable
-        if args.repeat_coder > 1:
+        if args.iterations > 1:
             analyze_coder_inconsistency(output_root_path, args.testcase)
-        if args.repeat_critic > 1:
             analyze_critic_inconsistency(output_root_path, args.testcase)
 
 
