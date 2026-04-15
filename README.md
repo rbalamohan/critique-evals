@@ -101,12 +101,33 @@ output/sql_basic_query/
 --coder             Coder provider (claude or gpt) - optional, runs all pairs by default
 --critic            Critic provider (claude or gpt) - optional, runs all pairs by default
 --iterations, -n    Iterations per pair (default: 1)
+--repeat-coder      Repeat coder runs to measure inconsistency (default: 1)
+--repeat-critic     Repeat critic runs to measure inconsistency (default: 1)
 --output-root, -o   Output directory (default: output)
 --list              List available test cases
 --debug             Enable debug logging
 ```
 
 **Default behavior**: Runs all 4 coder/critic pairs unless `--coder` and `--critic` are both specified.
+
+## Inconsistency Analysis
+
+Use `--repeat-coder` and `--repeat-critic` to measure model inconsistency:
+
+```bash
+# Measure coder inconsistency: how often does the same prompt produce different code?
+uv run critique -t sql_basic_query --repeat-coder 3
+
+# Measure critic inconsistency: how often does the same code get different assessments?
+uv run critique -t sql_basic_query --repeat-critic 3
+
+# Measure both
+uv run critique -t sql_basic_query --repeat-coder 3 --repeat-critic 3
+```
+
+The reports will show:
+- **Coder Inconsistency**: Code similarity % between runs, overall inconsistency rate
+- **Critic Inconsistency**: Sentiment flip rate (positive→negative or vice versa), consistency %
 
 ## Analyzing Results
 
