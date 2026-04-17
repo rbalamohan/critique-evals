@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly joins and filters both tables, applies proper date math for an 8-week lookback, uses the required division pattern, and groups/orders results by week as expected.

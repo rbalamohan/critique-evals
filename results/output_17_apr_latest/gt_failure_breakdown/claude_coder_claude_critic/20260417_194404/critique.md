@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters failed tasks for the target org, applies all required schema rules, and accurately computes failure reason breakdown with percentage using a window function over grouped counts.

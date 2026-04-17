@@ -1,0 +1,19 @@
+{
+  "testcase": "gt_failure_breakdown",
+  "coder_provider": "gpt",
+  "critic_provider": "gpt",
+  "coder_model": "gpt-5.4",
+  "critic_model": "gpt-5.4",
+  "wall_time_seconds": 3.0687064999947324,
+  "error": null,
+  "coder_run": 15,
+  "critic_run": 0,
+  "corrupted": true,
+  "corruption_type": "join",
+  "corruption_seed": 42,
+  "critic": {
+    "tokens_in": 543,
+    "tokens_out": 32,
+    "error": null
+  }
+}

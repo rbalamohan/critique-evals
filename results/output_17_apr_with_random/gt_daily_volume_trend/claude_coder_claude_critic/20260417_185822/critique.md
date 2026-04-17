@@ -1,0 +1,2 @@
+UNSATISFACTORY
+Reason: `o._FIVETRAN_DELETED = TRUE` should be `= FALSE`, which would incorrectly exclude all valid (non-deleted) organization records.

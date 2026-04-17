@@ -1,0 +1,2 @@
+UNSATISFACTORY
+Reason: The join to WORKERS uses INNER JOIN instead of LEFT JOIN, which excludes tasks with no completing worker, contradicting the schema rule requiring LEFT JOIN with COALESCE fallback to 'Unknown'.

@@ -1,0 +1,19 @@
+{
+  "testcase": "gt_daily_volume_trend",
+  "coder_provider": "claude",
+  "critic_provider": "claude",
+  "coder_model": "claude-sonnet-4-6",
+  "critic_model": "claude-sonnet-4-6",
+  "wall_time_seconds": 6.96014308399981,
+  "error": null,
+  "coder_run": 32,
+  "critic_run": 0,
+  "corrupted": true,
+  "corruption_type": "random",
+  "corruption_seed": 42,
+  "critic": {
+    "tokens_in": 638,
+    "tokens_out": 40,
+    "error": null
+  }
+}

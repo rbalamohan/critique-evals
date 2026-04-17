@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly identifies Acme org failed tasks in the last 3 months, applies all required filters, and accurately computes failure breakdowns with proper percentage calculation using NULLIF and CROSS JOIN for totals.

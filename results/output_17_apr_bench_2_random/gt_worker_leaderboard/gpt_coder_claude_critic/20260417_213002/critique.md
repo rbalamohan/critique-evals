@@ -1,0 +1,2 @@
+UNSATISFACTORY
+Reason: Grouping by `COALESCE(w.NAME, 'Unknown')` conflates distinct workers who share the same name or are all unknown, and should instead group by `w.ID` (with the coalesced name in SELECT only).

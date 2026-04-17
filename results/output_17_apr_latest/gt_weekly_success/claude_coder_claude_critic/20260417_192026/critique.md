@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly joins TASKS to ORGANIZATIONS via EXECUTOR_ID, filters both _FIVETRAN_DELETED flags, applies the org name lookup with ILIKE, uses proper date math and division patterns, and groups/orders by week as expected.

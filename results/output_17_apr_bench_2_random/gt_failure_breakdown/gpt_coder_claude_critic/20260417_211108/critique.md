@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters Acme orgs, applies all required conditions, uses proper date math and division patterns, and accurately calculates failure reason breakdown with percentage using CROSS JOIN on totals.

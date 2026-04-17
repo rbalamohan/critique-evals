@@ -1,0 +1,19 @@
+{
+  "testcase": "gt_delay_buckets",
+  "coder_provider": "gpt",
+  "critic_provider": "claude",
+  "coder_model": "gpt-5.4",
+  "critic_model": "claude-sonnet-4-6",
+  "wall_time_seconds": 8.479051416999937,
+  "error": null,
+  "coder_run": 5,
+  "critic_run": 0,
+  "corrupted": true,
+  "corruption_type": "random",
+  "corruption_seed": 42,
+  "critic": {
+    "tokens_in": 823,
+    "tokens_out": 39,
+    "error": null
+  }
+}

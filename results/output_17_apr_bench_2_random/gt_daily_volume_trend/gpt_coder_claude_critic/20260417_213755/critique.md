@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly follows all schema rules, uses proper date math, filters deleted records, applies the org name lookup with ILIKE, and includes a valid day-over-day trend calculation.

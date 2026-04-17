@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters deleted records, scopes to the target org via ILIKE, calculates failure breakdown with proper percentage using NULLIF, and applies the correct DATEADD date math.

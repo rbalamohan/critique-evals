@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly joins all required tables, applies proper filters including _FIVETRAN_DELETED checks, uses COALESCE for unknown workers, follows the specified division pattern, and uses correct date math syntax.

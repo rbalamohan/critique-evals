@@ -1,0 +1,2 @@
+UNSATISFACTORY
+Reason: The schema rules require a LEFT JOIN on WORKERS with COALESCE to handle unknown workers, but the query uses INNER JOIN, excluding tasks with unmatched or null completing workers from the leaderboard.

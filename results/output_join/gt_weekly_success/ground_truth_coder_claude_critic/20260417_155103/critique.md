@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly applies all schema rules, uses proper division safety with NULLIF, filters deleted records, applies the correct org lookup with ILIKE, and uses the specified DATEADD date math syntax.

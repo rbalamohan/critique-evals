@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly identifies Acme org failures in the last 3 months, calculates percentage via CROSS JOIN with total count, and follows all schema rules including deleted filters, ILIKE lookup, and date math syntax.

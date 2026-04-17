@@ -1,0 +1,19 @@
+{
+  "testcase": "gt_worker_leaderboard",
+  "coder_provider": "claude",
+  "critic_provider": "claude",
+  "coder_model": "claude-sonnet-4-6",
+  "critic_model": "claude-sonnet-4-6",
+  "wall_time_seconds": 6.8863087499994435,
+  "error": null,
+  "coder_run": 11,
+  "critic_run": 0,
+  "corrupted": true,
+  "corruption_type": "random",
+  "corruption_seed": 42,
+  "critic": {
+    "tokens_in": 644,
+    "tokens_out": 47,
+    "error": null
+  }
+}

@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters for the target organization, applies proper deletion filters, uses the required division pattern, and accurately aggregates weekly task success metrics over the last 8 weeks.

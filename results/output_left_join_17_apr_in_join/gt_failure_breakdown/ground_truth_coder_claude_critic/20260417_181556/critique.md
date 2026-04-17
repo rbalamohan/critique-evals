@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters for failures, applies all required predicates including _FIVETRAN_DELETED guards, uses the correct org lookup pattern, proper date math, and accurately calculates percentage of failures using a window function.

@@ -1,0 +1,2 @@
+UNSATISFACTORY
+Reason: The `GROUP BY` clause is incomplete — it reads `GROUP BY DATE_TRUNC('week'` and is missing the closing parenthesis and column argument (`, t.COMPLETION_DETAILS_TIME)`), which will cause a syntax error.

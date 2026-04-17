@@ -1,0 +1,19 @@
+{
+  "testcase": "gt_daily_volume_trend",
+  "coder_provider": "ground_truth",
+  "critic_provider": "gpt",
+  "coder_model": "ground_truth",
+  "critic_model": "gpt-5.4",
+  "wall_time_seconds": 2.1152338749998307,
+  "error": null,
+  "coder_run": 0,
+  "critic_run": 0,
+  "corrupted": false,
+  "corruption_type": null,
+  "corruption_seed": null,
+  "critic": {
+    "tokens_in": 511,
+    "tokens_out": 25,
+    "error": null
+  }
+}

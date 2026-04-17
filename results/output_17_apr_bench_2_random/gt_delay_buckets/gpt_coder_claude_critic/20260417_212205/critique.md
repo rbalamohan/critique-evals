@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly buckets task lateness using proper DATEDIFF ordering, filters deleted records, handles NULL deadlines, and presents results with correct percentage calculation and logical ordering.

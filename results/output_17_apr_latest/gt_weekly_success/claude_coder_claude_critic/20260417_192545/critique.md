@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly implements weekly success metrics with proper org lookup, deleted filters, division safety, and an 8-week rolling window using the specified date math patterns.
