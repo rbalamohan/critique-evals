@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters deleted records, uses ILIKE for org lookup, applies proper date math, handles division safely with NULLIF, and accurately computes failure reason breakdown with percentages.

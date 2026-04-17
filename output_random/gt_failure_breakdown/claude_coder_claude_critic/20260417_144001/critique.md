@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters for failed tasks from the target org in the last 3 months, groups by failure reason with a proper COALESCE, and calculates percentage using a window function with NULLIF guard.

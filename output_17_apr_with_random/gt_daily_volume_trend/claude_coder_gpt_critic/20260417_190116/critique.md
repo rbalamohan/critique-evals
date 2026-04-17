@@ -1,0 +1,2 @@
+UNSATISFACTORY
+Reason: It incorrectly filters ORGANIZATIONS._FIVETRAN_DELETED = TRUE instead of FALSE.

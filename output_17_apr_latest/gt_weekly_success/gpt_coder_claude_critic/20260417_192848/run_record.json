@@ -1,0 +1,19 @@
+{
+  "testcase": "gt_weekly_success",
+  "coder_provider": "gpt",
+  "critic_provider": "claude",
+  "coder_model": "gpt-5.4",
+  "critic_model": "claude-sonnet-4-6",
+  "wall_time_seconds": 7.807476208999788,
+  "error": null,
+  "coder_run": 8,
+  "critic_run": 0,
+  "corrupted": true,
+  "corruption_type": "random",
+  "corruption_seed": 42,
+  "critic": {
+    "tokens_in": 636,
+    "tokens_out": 40,
+    "error": null
+  }
+}

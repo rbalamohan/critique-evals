@@ -1,0 +1,17 @@
+SELECT
+    COALESCE(t.COMPLETION_DETAILS_FAILURE_REASON, 'No reason recorded') AS failure_reason,
+    COUNT(*) AS failure_count,
+    ROUND(COUNT(*)::FLOAT / NULLIF(SUM(COUNT(*)) OVER (), 0) * 100, 2) AS percentage_of_total_failures
+FROM TASKS t
+JOIN ORGANIZATIONS o
+    ON t.CREATOR_ID = o.ID
+    AND o._FIVETRAN_DELETED = FALSE
+    AND o.NAME ILIKE '%Acme%'
+WHERE
+    t._FIVETRAN_DELETED = FALSE
+    AND t.COMPLETION_DETAILS_SUCCESS = FALSE
+    AND t.COMPLETION_DETAILS_TIME >= DATEADD('month', -3, CURRENT_DATE())
+GROUP BY
+    COALESCE(t.COMPLETION_DETAILS_FAILURE_REASON, 'No reason recorded')
+ORDER BY
+    failure_count DESC

@@ -1,0 +1,2 @@
+UNSATISFACTORY
+Reason: The schema requires a LEFT JOIN for WORKERS with COALESCE to handle unknown workers, but the code uses INNER JOIN, which excludes tasks with no completing worker (made redundant by the IS NOT NULL filter, defeating the purpose of COALESCE).

@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters deleted records, applies the org lookup with ILIKE, uses proper DATEADD date math, and calculates day-over-day volume change with LAG in compliance with all schema rules.

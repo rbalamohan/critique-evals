@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly aggregates weekly task success metrics for the target organization, applies all required filters, uses proper date math, and follows the division pattern from the schema rules.

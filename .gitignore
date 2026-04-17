@@ -1,5 +1,6 @@
 output/
 output.txt
+log_benchmark_*.log
 .DS_Store
 .idea/
 __pycache__/

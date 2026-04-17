@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters failed tasks for the target org within the last 3 months, applies all required deleted flags, uses proper window function for percentage calculation, and follows all schema rules.

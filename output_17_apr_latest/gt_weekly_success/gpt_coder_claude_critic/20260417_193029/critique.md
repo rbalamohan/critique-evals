@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly follows all schema rules, uses proper division pattern, filters deleted records, applies org lookup with ILIKE, and performs accurate date math for an 8-week weekly success breakdown.

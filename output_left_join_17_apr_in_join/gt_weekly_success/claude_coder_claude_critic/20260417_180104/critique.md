@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters by org name, excludes deleted records, applies the 8-week lookback using proper date math, and calculates success rate with the required float-division pattern.

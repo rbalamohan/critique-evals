@@ -38,8 +38,9 @@ def main() -> None:
     parser.add_argument("--critic", type=str, choices=["claude", "gpt"], help="Critic provider (optional, runs all pairs by default)")
     parser.add_argument("--coder-model", default="", help="Override coder model")
     parser.add_argument("--critic-model", default="", help="Override critic model")
-    parser.add_argument("--iterations", "-n", type=int, default=1, help="Iterations (repeat coder and critic runs)")
-    parser.add_argument("--corrupt", choices=["random", "join", "group", "date", "all"], help="Corrupt coder output before critique (for testing critic reliability)")
+    parser.add_argument("--iterations", "-n", type=int, default=1, help="Number of coder runs (independent SQL generations)")
+    parser.add_argument("--critic-n", type=int, default=1, help="Number of critic runs per coder output (default: 1)")
+    parser.add_argument("--corrupt", choices=["random", "join", "group", "date", "filter", "inner_join", "all"], help="Corrupt coder output before critique (for testing critic reliability)")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducible corruption (default: 42)")
     parser.add_argument("--output-root", "-o", default="output", help="Output directory")
     parser.add_argument("--list", action="store_true", help="List available test cases")
@@ -89,7 +90,7 @@ def main() -> None:
         print(f"\n--- Coder: {coder_prov} ---")
         for repeat_idx in range(args.iterations):
             if args.iterations > 1:
-                print(f"  Run {repeat_idx + 1}/{args.iterations}")
+                print(f"  Run {repeat_idx + 1}/{args.iterations} (coder)")
             coder_response = coder_runner.generate_code(
                 DEFAULT_MODELS[coder_prov], testcase.prompt, system_context=testcase.domain_context
             )
@@ -127,7 +128,7 @@ def main() -> None:
                 critic_code_input = corrupt_sql(code_output, args.corrupt, corruption_rng)
                 print(f"\n[CORRUPTED with {args.corrupt} error (seed={args.seed})]")
 
-            for critic_run_idx in range(args.iterations):
+            for critic_run_idx in range(args.critic_n):
                 ts = datetime.now().strftime("%Y%m%d_%H%M%S")
                 pair_name = f"{coder_prov}_coder_{critic_prov}_critic"
                 run_dir = base_dir / args.output_root / args.testcase / pair_name / ts
@@ -137,8 +138,8 @@ def main() -> None:
                     print(f"  Coder: {coder_prov} → Critic: {critic_prov}")
                     if len(coder_outputs[coder_prov]) > 1:
                         print(f"  Coder run {coder_run_idx + 1}/{len(coder_outputs[coder_prov])}")
-                    if args.iterations > 1:
-                        print(f"  Critic run {critic_run_idx + 1}/{args.iterations}")
+                    if args.critic_n > 1:
+                        print(f"  Critic run {critic_run_idx + 1}/{args.critic_n}")
                     print(f"{'#' * 60}")
 
                 # Run critic on the coder's output
@@ -251,6 +252,7 @@ def main() -> None:
         # Print inconsistency analyses if applicable
         if args.iterations > 1:
             analyze_coder_inconsistency(output_root_path, args.testcase)
+        if args.critic_n > 1:
             analyze_critic_inconsistency(output_root_path, args.testcase)
 
         # Print corruption quality analysis if applicable

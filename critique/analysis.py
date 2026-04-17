@@ -355,6 +355,7 @@ def analyze_critic_quality_on_corruption(output_root: Path, testcase: str) -> No
 
     # Collect corruption results
     corruption_results: dict[str, dict[str, list[bool]]] = defaultdict(lambda: defaultdict(list))
+    noop_counts: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     # corruption_results[coder][critic] = [accepted_corrupt_1, accepted_corrupt_2, ...]
 
     for pair_dir in testcase_dir.iterdir():
@@ -385,21 +386,32 @@ def analyze_critic_quality_on_corruption(output_root: Path, testcase: str) -> No
             if not record.get("corrupted"):
                 continue
 
+            # No-op detection: skip runs where corruption had no effect (original == generated).
+            # These are not meaningful corruption tests — the critic saw unchanged code.
+            original_path = run_dir / "original_code.sql"
+            generated_path = run_dir / "generated_code.sql"
+            if original_path.exists() and generated_path.exists():
+                with open(original_path) as f:
+                    original_sql = f.read()
+                with open(generated_path) as f:
+                    generated_sql = f.read()
+                if original_sql.strip() == generated_sql.strip():
+                    noop_counts[coder][critic] = noop_counts[coder][critic] + 1
+                    continue  # corruption was a no-op — exclude from acceptance stats
+
             # Check if critic accepted the corrupted code
             critique_path = run_dir / "critique.md"
             if critique_path.exists():
                 with open(critique_path) as f:
                     critique_text = f.read().lower()
-                    # Check for negative indicators first
                     rejected = any(word in critique_text for word in ["unsatisfactory", "incorrect", "wrong", "error", "issue", "problem", "invalid"])
-                    # If not explicitly rejected, check for positive indicators
                     if not rejected:
                         accepted = any(word in critique_text for word in ["satisfactory", "correct", "valid", "proper", "excellent", "good"])
                     else:
                         accepted = False
                     corruption_results[coder][critic].append(accepted)
 
-    if not corruption_results:
+    if not corruption_results and not any(noop_counts.values()):
         return
 
     print("\n" + "=" * 80)
@@ -408,16 +420,20 @@ def analyze_critic_quality_on_corruption(output_root: Path, testcase: str) -> No
     print("\n(Accepting corrupted code = poor quality critic)")
     print()
 
-    for coder in sorted(corruption_results.keys()):
+    for coder in sorted(set(list(corruption_results.keys()) + list(noop_counts.keys()))):
         print(f"\n{coder.upper()} Coder - Corruption Acceptance Rates:")
         print("-" * 50)
 
-        for critic in sorted(corruption_results[coder].keys()):
+        for critic in sorted(set(list(corruption_results[coder].keys()) + list(noop_counts[coder].keys()))):
             results = corruption_results[coder][critic]
+            noops = noop_counts[coder][critic]
             if results:
                 acceptance_rate = sum(results) / len(results)
-                status = "🚨 POOR" if acceptance_rate > 0.5 else "⚠️  WEAK" if acceptance_rate > 0.2 else "✓ GOOD"
-                print(f"  {critic.upper()}: {acceptance_rate:.0%} accepted corrupted code {status}")
+                status = "POOR" if acceptance_rate > 0.5 else "WEAK" if acceptance_rate > 0.2 else "GOOD"
+                noop_note = f"  [{noops} no-op skipped]" if noops > 0 else ""
+                print(f"  {critic.upper()}: {acceptance_rate:.0%} accepted ({len(results)} runs){noop_note}  {status}")
+            elif noops > 0:
+                print(f"  {critic.upper()}: all {noops} runs were no-ops — no effective corruptions")
 
     print("\n" + "=" * 80)
 

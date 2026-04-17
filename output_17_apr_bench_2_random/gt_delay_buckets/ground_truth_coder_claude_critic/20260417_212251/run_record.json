@@ -1,0 +1,19 @@
+{
+  "testcase": "gt_delay_buckets",
+  "coder_provider": "ground_truth",
+  "critic_provider": "claude",
+  "coder_model": "ground_truth",
+  "critic_model": "claude-sonnet-4-6",
+  "wall_time_seconds": 7.063533749999806,
+  "error": null,
+  "coder_run": 0,
+  "critic_run": 0,
+  "corrupted": false,
+  "corruption_type": null,
+  "corruption_seed": null,
+  "critic": {
+    "tokens_in": 822,
+    "tokens_out": 39,
+    "error": null
+  }
+}

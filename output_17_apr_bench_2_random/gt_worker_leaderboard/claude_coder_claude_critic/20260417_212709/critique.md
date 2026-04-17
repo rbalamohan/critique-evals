@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly joins all required tables, applies proper filters, uses COALESCE for unknown workers, and follows all schema rules for division, date math, and deleted record filtering.

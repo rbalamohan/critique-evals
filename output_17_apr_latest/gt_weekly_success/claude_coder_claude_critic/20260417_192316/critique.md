@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters for Acme's tasks, applies proper date math for an 8-week window, uses the required division pattern, and includes all necessary _FIVETRAN_DELETED guards.

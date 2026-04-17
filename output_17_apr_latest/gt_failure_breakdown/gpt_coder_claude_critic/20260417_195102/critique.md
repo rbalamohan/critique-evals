@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly joins organizations with ILIKE filtering, applies all required filters, computes failure breakdown with proper percentage using NULLIF, and uses the specified DATEADD date math syntax.

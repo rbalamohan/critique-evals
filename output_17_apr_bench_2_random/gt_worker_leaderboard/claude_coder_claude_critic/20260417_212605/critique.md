@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly implements all schema rules including proper LEFT JOIN for workers with COALESCE, org lookup with ILIKE, FIVETRAN filters, date math, and float division pattern.

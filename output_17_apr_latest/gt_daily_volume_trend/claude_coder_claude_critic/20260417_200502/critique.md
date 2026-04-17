@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly aggregates daily task volume with success counts, applies proper filters including both `_FIVETRAN_DELETED` flags, uses the correct `ILIKE` org lookup, valid `DATEADD` date math, and adds a meaningful day-over-day trend via `LAG`.

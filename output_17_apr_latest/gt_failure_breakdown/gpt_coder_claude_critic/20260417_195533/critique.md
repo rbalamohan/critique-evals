@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters for Acme's failed tasks in the last 3 months, groups by failure reason with a proper NULL fallback, and calculates percentages using the required FLOAT cast and NULLIF pattern.

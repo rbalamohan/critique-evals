@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters deleted records, scopes to Acme org, breaks down failures by reason with counts and percentages, and follows all schema rules including date math and division patterns.

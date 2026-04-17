@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters by organization name, applies both deleted flags, uses proper date math for an 8-week rolling window, and calculates success rate using the required FLOAT cast with NULLIF pattern.

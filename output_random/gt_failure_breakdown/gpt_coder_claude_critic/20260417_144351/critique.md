@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters deleted records, scopes to Acme org, isolates failed tasks within the last 3 months, groups by failure reason with a null fallback, and computes percentage using safe float division per schema rules.

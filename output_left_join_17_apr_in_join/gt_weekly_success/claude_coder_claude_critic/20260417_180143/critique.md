@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters by organization name, applies both `_FIVETRAN_DELETED` guards, uses proper date math and truncation for an 8-week window, and calculates the success rate using the required `::FLOAT / NULLIF` pattern.

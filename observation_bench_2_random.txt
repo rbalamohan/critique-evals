@@ -1,0 +1,210 @@
+
+  ---
+  Benchmark Study: Does Model Diversity Improve Code Review Quality?
+  Run: benchmark_new_1.sh | Corruption: --corrupt random | n=20 per task | No-op detection: active
+
+  ---
+  Background & Motivation
+
+  A common pattern in AI-assisted software development is to use one model to generate code and another
+  to review it. The open question is: does using different models for these two roles produce better
+  outcomes than using the same model for both?
+
+  This study was designed to answer that question empirically, using SQL code generation and review as
+  the test domain. This run extends the previous benchmark by adding two additional ground truth
+  testcases (gt_delay_buckets and gt_worker_leaderboard) to stress a wider range of SQL patterns.
+
+  ---
+  The Setup
+
+  Domain: A logistics operations database (Snowflake SQL) representing task management — organizations,
+  workers, and task completion records.
+
+  Models tested:
+  - Coder: Claude (Sonnet 4.6) or GPT (GPT-5.4)
+  - Critic: Claude (Sonnet 4.6) or GPT (GPT-5.4)
+  - All 4 combinations tested: Claude→Claude, Claude→GPT, GPT→Claude, GPT→GPT
+
+  Five SQL tasks of increasing complexity:
+
+  ┌──────────────────────────┬───────────────────────────────────────────────────────────────────────────────────┐
+  │          Task            │                              What it tests                                        │
+  ├──────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+  │ Weekly Success Report    │ Basic aggregation — weekly task volume and success rate for an org over 8 weeks   │
+  ├──────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+  │ Failure Breakdown        │ NULL handling + window functions — failure reason distribution with % share       │
+  ├──────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+  │ Delay Buckets            │ CASE/DATEDIFF + NULL deadline handling — on-time vs late delivery categorisation  │
+  ├──────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+  │ Worker Leaderboard       │ LEFT JOIN nullable column — top workers via COMPLETING_WORKER_ID join             │
+  ├──────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+  │ Daily Volume Trend       │ CTE + LAG window function — day-over-day task volume change over 14 days         │
+  └──────────────────────────┴───────────────────────────────────────────────────────────────────────────────────┘
+
+  Scale: 20 independent coder runs per task × 5 tasks = 100 SQL queries generated per model,
+  each reviewed by both critics independently.
+
+  ---
+  How We Measured Quality
+
+  Phase 1 — Code Generation: Each coder model generated SQL independently 20 times per task.
+  We measured how consistent the outputs were across runs.
+
+  Phase 2 — Bug Detection: Before sending to the critic, we injected a deliberate bug into each
+  generated SQL using random corruption (join condition swap, GROUP BY removal, date function
+  substitution, or LEFT→INNER JOIN). We then measured how often each critic correctly flagged
+  the corrupted SQL as flawed.
+
+  No-op filtering: When the chosen corruption type did not match the generated SQL (e.g. a date
+  corruption applied to a query with no date functions), the SQL was unchanged. These no-op runs
+  are excluded from detection statistics — only runs where corruption actually applied are counted.
+
+  Phase 3 — False Positive Check: We also gave each critic a verified-correct ground truth SQL
+  (written by a domain expert). A good critic should accept it — rejecting correct code is a
+  false positive.
+
+  ---
+  Results
+
+  Bug Detection Rate (higher = better critic)
+  Note: "Effective" = runs where corruption actually changed the SQL (no-ops excluded).
+  * = unreliable (fewer than 3 effective samples).
+
+  ┌──────────────────────────┬─────────────────┬───────────┬─────────────────────────┬───────────────┐
+  │          Task            │ Coder → Critic  │ Effective │ Corrupted Code Accepted │ Bugs Detected │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Weekly Success           │ Claude → Claude │    11     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Weekly Success           │ Claude → GPT    │     7     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Weekly Success           │ GPT → Claude    │     5     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Weekly Success           │ GPT → GPT       │     3     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Failure Breakdown        │ Claude → Claude │     8     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Failure Breakdown        │ Claude → GPT    │     7     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Failure Breakdown ★      │ GPT → Claude    │     5     │ 20%                     │ 80%           │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Failure Breakdown ★      │ GPT → GPT       │     6     │ 33%                     │ 67%           │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Delay Buckets *          │ Claude → Claude │     1     │ 100%                    │ 0%            │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Delay Buckets *          │ Claude → GPT    │     1     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Delay Buckets *          │ GPT → Claude    │     0     │ —                       │ —             │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Delay Buckets *          │ GPT → GPT       │     2     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Worker Leaderboard       │ Claude → Claude │    11     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Worker Leaderboard       │ Claude → GPT    │    11     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Worker Leaderboard       │ GPT → Claude    │    12     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Worker Leaderboard       │ GPT → GPT       │    15     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Daily Volume Trend       │ Claude → Claude │     8     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Daily Volume Trend       │ Claude → GPT    │     7     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Daily Volume Trend       │ GPT → Claude    │     5     │ 0%                      │ 100%          │
+  ├──────────────────────────┼─────────────────┼───────────┼─────────────────────────┼───────────────┤
+  │ Daily Volume Trend       │ GPT → GPT       │     3     │ 0%                      │ 100%          │
+  └──────────────────────────┴─────────────────┴───────────┴─────────────────────────┴───────────────┘
+
+  ★ = meaningful differentiation between critics
+  * = too few effective samples to draw conclusions (19/20 runs were no-ops)
+
+  False Positive Rate (lower = better)
+
+  ┌────────┬────────────────────────────────┐
+  │ Critic │ False Positives on Correct SQL │
+  ├────────┼────────────────────────────────┤
+  │ Claude │ 0% across all 5 tasks          │
+  ├────────┼────────────────────────────────┤
+  │ GPT    │ 0% across all 5 tasks          │
+  └────────┴────────────────────────────────┘
+
+  Both critics never flagged correct code as wrong.
+
+  Coder Consistency (higher = more stable output across 20 runs)
+
+  ┌──────────────────────────┬──────────────────────────────┬──────────────────┐
+  │          Task            │        Claude Coder          │    GPT Coder     │
+  ├──────────────────────────┼──────────────────────────────┼──────────────────┤
+  │ Weekly Success           │ 95% similar across 20 runs   │ 65% similar      │
+  ├──────────────────────────┼──────────────────────────────┼──────────────────┤
+  │ Failure Breakdown        │ 95% similar across 20 runs   │ 43% similar      │
+  ├──────────────────────────┼──────────────────────────────┼──────────────────┤
+  │ Delay Buckets            │ 84% similar across 20 runs   │ 85% similar      │
+  ├──────────────────────────┼──────────────────────────────┼──────────────────┤
+  │ Worker Leaderboard       │ 92% similar across 20 runs   │ 99% similar      │
+  ├──────────────────────────┼──────────────────────────────┼──────────────────┤
+  │ Daily Volume Trend       │ 96% similar across 20 runs   │ 89% similar      │
+  └──────────────────────────┴──────────────────────────────┴──────────────────┘
+
+  ---
+  Key Observations
+
+  1. On the hardest task, Claude is a better critic than GPT — and the gap appears only with GPT-generated code.
+  Failure Breakdown (NULL handling + window percentage) is the most complex task in this benchmark.
+  When Claude-generated SQL was corrupted, both critics caught every bug (100%). But when GPT-generated
+  SQL was corrupted, the GPT critic missed 20–33% of injected bugs while the Claude critic missed none.
+  This is the only task where critics diverge, and it only occurs when GPT writes the code — suggesting
+  GPT-reviewing-GPT creates a shared blind spot on structurally unfamiliar output.
+
+  2. The same-model pair GPT→GPT is the weakest configuration on the hardest task.
+  GPT→GPT missed 33% of bugs on Failure Breakdown — the worst detection rate in the benchmark.
+  Replacing the GPT critic with Claude (GPT→Claude) improved detection from 67% to 80%.
+  Replacing the GPT coder with Claude (Claude→GPT) improved detection to 100%.
+  Both cross-model pairs outperformed the same-model GPT pair on this task.
+
+  3. Claude generates highly stable, convergent SQL; GPT generates structurally diverse SQL.
+  On Failure Breakdown, GPT outputs across different runs were only 43% similar to each other —
+  meaning different runs produced genuinely different query structures for the same problem.
+  Claude produced near-identical SQL every time (95% similarity). This has a direct implication:
+  a Claude→Claude pair always evaluates the same narrow structure, while a GPT coder naturally
+  exposes the critic to a wider range of valid approaches. The exception is Worker Leaderboard,
+  where GPT was unusually stable (99%) and Claude slightly less so (92%).
+
+  4. No false positives from either critic.
+  Both models correctly accepted all verified-correct SQL across all 5 tasks. The detection gap
+  on Failure Breakdown is therefore not caused by GPT being more lenient in general — GPT simply
+  misses real bugs that Claude catches on that specific task.
+
+  5. Delay Buckets produced near-zero effective samples and cannot be evaluated.
+  The random corruption pool almost never matched the SQL patterns generated for this task
+  (19 out of 20 runs were no-ops per cell). Any numbers from this task are statistically
+  meaningless and should not be cited.
+
+  ---
+  Why This Supports the Paper's Argument
+
+  This benchmark provides clean, no-op-filtered evidence for two distinct failure modes in
+  same-model code review pipelines:
+
+  Failure Mode 1 — Shared blind spots under structural novelty.
+  When GPT generates SQL and GPT reviews it, the same-model pair misses 33% of injected bugs
+  on the task requiring NULL handling and window functions — patterns where GPT's own output
+  varies most (43% similarity). A different model as critic (Claude) reduces that miss rate
+  from 33% to 20%. The cross-model Claude coder + GPT critic pair (structural variety + fresh
+  perspective) catches bugs the same-model pair misses.
+
+  Failure Mode 2 — Convergence collapse in same-model coder+critic.
+  Claude generates nearly identical SQL 95% of the time on most tasks. A Claude→Claude pair
+  will always evaluate the same narrow structure — if Claude has a systematic gap in how it
+  handles a pattern, that gap appears in both the generated code and the review, and will
+  never be surfaced. GPT's 43–65% output variation means a cross-model pair naturally
+  stress-tests the critic with structural alternatives that a same-model pair never encounters.
+
+  Together these argue: using the same model for both generation and review creates a system
+  that is self-consistent but not self-correcting. Cross-model pairing breaks this by
+  introducing independent judgment (different critic catches what same-model misses) and
+  structural variation (different coder generates diverse outputs, exposing more failure modes).
+
+  Caveat: The detection signal is concentrated in a single task (Failure Breakdown) with
+  5–8 effective samples per cell. This should be presented as preliminary evidence consistent
+  with the hypothesis, not a statistically definitive proof. The coder consistency finding
+  (Claude 95% vs GPT 43–65%) is based on full n=20 and is the most robust result in this study.

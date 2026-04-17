@@ -1,0 +1,2 @@
+SATISFACTORY
+Reason: The query correctly filters deleted records, scopes to Acme org, breaks down failures by reason with proper COALESCE handling, and calculates percentages using the required FLOAT cast and NULLIF pattern.
