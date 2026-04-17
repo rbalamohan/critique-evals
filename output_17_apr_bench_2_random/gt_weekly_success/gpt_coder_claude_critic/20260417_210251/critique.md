@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: All schema rules are followed correctly, including proper org lookup, deletion filters, date math, division pattern, and the query logic accurately computes weekly success metrics for the target organization.

@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly implements all schema rules, properly filters deleted records, uses the correct date math and division patterns, and accurately computes weekly success metrics for the target organization.

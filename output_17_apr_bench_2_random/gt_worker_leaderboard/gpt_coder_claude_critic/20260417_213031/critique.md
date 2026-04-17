@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: Filtering `COMPLETING_WORKER_ID IS NOT NULL` makes the `LEFT JOIN` on workers effectively an inner join, yet the schema rule requires `LEFT JOIN + COALESCE(w.NAME, 'Unknown')` to handle nullable workers, so the null guard defeats the intended pattern and excludes tasks with no assigned worker.

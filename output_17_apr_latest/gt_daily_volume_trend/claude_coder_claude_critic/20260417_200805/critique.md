@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly aggregates daily task volume with success counts and day-over-day change, properly applying all schema rules including ILIKE org lookup, dual _FIVETRAN_DELETED filters, correct DATEADD syntax, and appropriate JOIN.

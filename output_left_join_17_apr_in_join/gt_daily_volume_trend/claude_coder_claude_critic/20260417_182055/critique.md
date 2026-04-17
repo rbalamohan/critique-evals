@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters deleted records, applies the org name lookup with ILIKE, uses proper DATEADD date math, aggregates daily task volume, and computes day-over-day change using LAG.

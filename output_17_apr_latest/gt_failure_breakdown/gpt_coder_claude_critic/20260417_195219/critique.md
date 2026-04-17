@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly identifies Acme org failures in the last 3 months, applies all required filters, handles null failure reasons, and calculates percentage using the approved division pattern.

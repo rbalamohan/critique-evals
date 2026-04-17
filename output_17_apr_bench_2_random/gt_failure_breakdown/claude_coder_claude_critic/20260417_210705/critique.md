@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters failures for the target org, applies proper date math, handles null failure reasons, and calculates percentage using a window function over grouped counts.

@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters deleted records, applies proper date math, uses ILIKE for org lookup, and accurately computes daily volume with a valid day-over-day change using LAG().

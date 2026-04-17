@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: It should use a LEFT JOIN to WORKERS, not an INNER JOIN.

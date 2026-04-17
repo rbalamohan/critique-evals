@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters deleted records, applies org lookup with ILIKE, scopes to failed tasks in the last 3 months, and accurately computes failure breakdown with percentage using a CROSS JOIN against the total count.

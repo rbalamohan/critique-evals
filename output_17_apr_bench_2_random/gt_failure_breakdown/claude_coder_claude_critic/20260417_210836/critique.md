@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters failures, applies proper org lookup, uses valid date math, respects deletion flags, and calculates percentage using a window function over grouped counts.

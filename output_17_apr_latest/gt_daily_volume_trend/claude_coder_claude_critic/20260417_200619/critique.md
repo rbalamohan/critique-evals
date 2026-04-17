@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters by org name, applies both `_FIVETRAN_DELETED` guards, uses proper `DATEADD` date math, aggregates daily task volume, and includes a valid day-over-day delta via `LAG`.

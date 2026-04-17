@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters failures for the target org within the last 3 months, properly handles null failure reasons, and accurately computes percentage using a window function over grouped counts.

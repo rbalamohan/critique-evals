@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters for the target organization, applies the 8-week lookback using proper date math, calculates success rate with NULLIF guard, and follows all schema rules.

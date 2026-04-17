@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters for failures, applies all required deleted flags, uses proper date math, handles null failure reasons with COALESCE, and calculates percentage distribution using a window function.

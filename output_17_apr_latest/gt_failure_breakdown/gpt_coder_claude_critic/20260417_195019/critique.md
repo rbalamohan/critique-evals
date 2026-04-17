@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters for Acme's failed tasks in the last 3 months, groups by failure reason with a null fallback, and calculates percentages using safe division per the schema rules.

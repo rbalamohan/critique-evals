@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly joins TASKS to ORGANIZATIONS via EXECUTOR_ID, filters deleted records, applies the org name lookup with ILIKE, uses proper date math, and calculates success rate with the required FLOAT cast and NULLIF pattern.

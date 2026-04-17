@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters failures for the target org, applies all required conventions (ILIKE, DATEADD, _FIVETRAN_DELETED), and accurately computes percentage using a window function over grouped counts.

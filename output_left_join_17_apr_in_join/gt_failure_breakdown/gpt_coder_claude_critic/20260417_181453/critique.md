@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters deleted records, scopes to Acme orgs, applies the 3-month date window, groups failure reasons, and calculates percentages using the prescribed division pattern.

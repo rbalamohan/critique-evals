@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly joins organizations with ILIKE filtering, applies all required filters, uses proper date math and division patterns, and aggregates weekly task metrics accurately.

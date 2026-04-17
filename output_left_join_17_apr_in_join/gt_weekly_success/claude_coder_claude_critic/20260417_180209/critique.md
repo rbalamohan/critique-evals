@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly joins and filters both tables, applies proper date math for 8 weeks of weekly data, and calculates success rate using the required FLOAT cast and NULLIF pattern.

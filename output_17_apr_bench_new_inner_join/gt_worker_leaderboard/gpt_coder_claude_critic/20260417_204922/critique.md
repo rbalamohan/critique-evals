@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: The join to WORKERS uses INNER JOIN instead of LEFT JOIN, which excludes tasks with no completing worker, and COALESCE to 'Unknown' is therefore never triggered as intended per the schema rules.

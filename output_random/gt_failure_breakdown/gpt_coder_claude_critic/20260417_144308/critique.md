@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly identifies Acme's failed tasks in the last 3 months, groups by failure reason with a proper percentage calculation using CROSS JOIN for totals, and follows all schema rules.

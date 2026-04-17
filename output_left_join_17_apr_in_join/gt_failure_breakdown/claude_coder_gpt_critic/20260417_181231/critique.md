@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: Follows the schema rules and correctly computes failure breakdown percentages for the specified organization and time window.

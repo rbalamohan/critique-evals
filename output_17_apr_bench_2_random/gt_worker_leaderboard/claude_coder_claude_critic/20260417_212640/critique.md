@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: The schema requires a LEFT JOIN for workers (to handle nullable COMPLETING_WORKER_ID and unknown workers), but the code uses an INNER JOIN, which silently drops tasks with no assigned worker.

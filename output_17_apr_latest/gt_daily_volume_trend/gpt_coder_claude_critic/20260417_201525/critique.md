@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly aggregates daily task volume for the target org over a 14-day window, applies all required filters, uses proper date math, and adds a valid day-over-day delta via LAG.

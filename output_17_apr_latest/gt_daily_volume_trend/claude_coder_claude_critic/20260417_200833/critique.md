@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly aggregates daily task volume with success counts and day-over-day change, applying all required filters, naming conventions, and date math per the schema rules.

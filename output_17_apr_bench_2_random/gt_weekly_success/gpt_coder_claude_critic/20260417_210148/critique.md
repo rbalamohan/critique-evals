@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters non-deleted records, uses the proper org lookup pattern, applies valid date math, uses the correct division pattern, and groups/orders by week appropriately.

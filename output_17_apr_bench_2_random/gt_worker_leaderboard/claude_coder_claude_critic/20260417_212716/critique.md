@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: The `COMPLETING_WORKER_ID IS NOT NULL` filter makes the `LEFT JOIN` on workers behave like an `INNER JOIN`, excluding tasks with no assigned worker, which contradicts using `LEFT JOIN` + `COALESCE` to handle unknown workers.

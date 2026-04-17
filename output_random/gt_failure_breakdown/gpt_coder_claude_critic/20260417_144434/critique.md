@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: The `failure_reasons` CTE joins on `T.CREATOR_ID = O.ID`, but the schema defines `TASKS.EXECUTOR_ID` as the foreign key to `ORGANIZATIONS.ID`; there is no `CREATOR_ID` column, causing the query to fail and producing inconsistent results compared to the `total_failures` CTE which correctly uses `EXECUTOR_ID`.

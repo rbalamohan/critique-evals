@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: The "30-60 min late" bucket uses `BETWEEN 31 AND 60`, creating a gap where tasks exactly 30 minutes late fall into the "10-30 min late" bucket but tasks between 30 and 31 minutes are misclassified — the boundary should be `BETWEEN 31 AND 60` → `> 30 AND <= 60` (i.e., start at 30 exclusive, not 31).

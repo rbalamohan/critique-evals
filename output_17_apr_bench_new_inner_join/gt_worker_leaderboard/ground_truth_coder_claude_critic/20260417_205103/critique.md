@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: All schema rules are correctly applied, including proper LEFT JOIN with COALESCE for nullable worker names, NULLIF division pattern, ILIKE org lookup, FIVETRAN filters, and correct DATEADD syntax.

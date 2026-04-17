@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters deleted records, uses ILIKE for org lookup, applies proper date math, computes percentage via CROSS JOIN with NULLIF guard, and groups/orders results appropriately.

@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters failed tasks for the target org within the last 3 months and accurately computes per-reason failure counts and percentages using a window function, following all schema rules.

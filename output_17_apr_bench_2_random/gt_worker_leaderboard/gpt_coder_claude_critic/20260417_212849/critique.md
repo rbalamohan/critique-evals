@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: Grouping by `COALESCE(w.NAME, 'Unknown')` conflates distinct workers who share the same name or are all unknown, and should instead group by `w.ID` (or a unique worker identifier) to ensure each worker is counted separately.

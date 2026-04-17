@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly aggregates daily task volume with success counts, applies proper filters, uses valid date math and org lookup syntax, and calculates day-over-day change using LAG correctly.

@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters for the target organization, applies proper date range logic for weekly aggregation, uses the specified division pattern, and respects all schema rules including `_FIVETRAN_DELETED` checks.

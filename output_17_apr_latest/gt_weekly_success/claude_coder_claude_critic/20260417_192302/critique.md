@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters by organization name, applies deleted flags, uses proper date math for an 8-week lookback, and calculates success rate using the specified division pattern.

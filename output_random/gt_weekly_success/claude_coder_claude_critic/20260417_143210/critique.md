@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly joins and filters organizations, applies proper deletion guards, uses valid date math and truncation for weekly buckets, and calculates success rate with the required FLOAT cast and NULLIF pattern.

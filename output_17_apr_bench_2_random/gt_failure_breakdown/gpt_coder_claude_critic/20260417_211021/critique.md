@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: The `failure_counts` CTE filters on `CREATOR_ID`, which does not exist in the TASKS schema (correct column is `EXECUTOR_ID`), causing inconsistent filtering between the two CTEs and a likely query error.

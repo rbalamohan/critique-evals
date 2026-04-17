@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters failures for the target org, applies all required deleted flags, uses proper date math, and calculates percentage via window function with NULLIF guard.

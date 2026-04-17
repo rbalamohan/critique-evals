@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters deleted records, applies the org name lookup, uses proper date math, and calculates failure breakdown percentages using a window function over grouped counts.

@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters deleted records, applies org lookup with ILIKE, scopes to last 3 months using DATEADD, handles null failure reasons with COALESCE, and computes percentage using the prescribed division pattern.

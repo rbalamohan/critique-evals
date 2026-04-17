@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly applies all schema rules including proper LEFT JOIN with COALESCE for nullable worker names, FIVETRAN_DELETED filters on all tables, correct date math, proper float division with NULLIF, and org lookup using ILIKE.

@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly filters by org name, deleted records, failure condition, and date range, while accurately computing failure breakdown percentages using a cross join with proper null-safe division.

@@ -1,2 +1,0 @@
-SATISFACTORY
-Reason: The query correctly joins TASKS to ORGANIZATIONS via EXECUTOR_ID, applies all required filters including _FIVETRAN_DELETED checks, uses proper date math and division patterns, and groups/aggregates weekly metrics as expected.

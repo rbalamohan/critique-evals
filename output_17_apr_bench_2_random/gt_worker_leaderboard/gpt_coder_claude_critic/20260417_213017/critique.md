@@ -1,2 +1,0 @@
-UNSATISFACTORY
-Reason: Filtering `t.COMPLETING_WORKER_ID IS NOT NULL` makes the LEFT JOIN on WORKERS effectively an INNER JOIN, excluding tasks with no assigned worker, which contradicts the schema rule requiring LEFT JOIN with COALESCE to handle unknown workers.
