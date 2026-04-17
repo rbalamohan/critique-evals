@@ -1,4 +1,4 @@
-# Critique Evals - Agent Pair Evaluation Framework
+# Critique Evals - Agent Pair Evaluation Framework 
 
 Framework for evaluating code generation with critique across different LLM provider pairs. Measures **critic quality** by testing whether critics catch intentional bugs in generated SQL, and whether they produce false positives on verified correct SQL.
 
