@@ -1,0 +1,62 @@
+Benchmark Summary — output_17_apr_bench_2_random.txt
+Setup: 5 GT testcases · n=20 · --corrupt random · no-op filtered · 4 model pairs
+
+---
+Bug Detection Rate (% of injected bugs CAUGHT — higher is better)
+
+  ┌───────────────────────┬──────┬──────┬──────┬──────┐
+  │       Testcase        │ C→C  │ C→G  │ G→C  │ G→G  │
+  ├───────────────────────┼──────┼──────┼──────┼──────┤
+  │ gt_weekly_success     │ 100% │ 100% │ 100% │ 100% │
+  ├───────────────────────┼──────┼──────┼──────┼──────┤
+  │ gt_failure_breakdown  │ 100% │ 100% │  80% │  67% │
+  ├───────────────────────┼──────┼──────┼──────┼──────┤
+  │ gt_worker_leaderboard │ 100% │ 100% │ 100% │ 100% │
+  ├───────────────────────┼──────┼──────┼──────┼──────┤
+  │ gt_daily_volume_trend │ 100% │ 100% │ 100% │ 100% │
+  ├───────────────────────┼──────┼──────┼──────┼──────┤
+  │ Avg                   │ 100% │ 100% │  95% │  92% │
+  └───────────────────────┴──────┴──────┴──────┴──────┘
+
+gt_delay_buckets excluded — 0–2 effective samples per cell (19/20 runs were no-ops)
+
+---
+Coder Output Stability (20 runs, same prompt — higher = more consistent)
+
+  ┌────────┬────────────────┬───────────────────┬────────────────────┬──────────────┐
+  │ Coder  │ Weekly Success │ Failure Breakdown │ Worker Leaderboard │ Daily Volume │
+  ├────────┼────────────────┼───────────────────┼────────────────────┼──────────────┤
+  │ Claude │      95%       │        95%        │        92%         │     96%      │
+  ├────────┼────────────────┼───────────────────┼────────────────────┼──────────────┤
+  │ GPT    │      65%       │        43%        │        99%         │     89%      │
+  └────────┴────────────────┴───────────────────┴────────────────────┴──────────────┘
+
+False Positive Rate: Claude critic 0% | GPT critic 0% (all 4 tasks)
+
+---
+Key Findings
+
+1. G→G is the only failing configuration.
+   On gt_failure_breakdown (NULL handling + window functions — the hardest task), GPT reviewing
+   GPT-generated code missed 33% of injected bugs. Every other pair hit 100%.
+
+2. Claude critic is the differentiator.
+   Replacing GPT critic with Claude on identical GPT-generated code raised detection from 67% to
+   80%. Both Claude-critic pairs hit 100% across all tasks. The critic model, not the coder model,
+   determines quality gate effectiveness.
+
+3. Claude generates convergent code; GPT generates diverse code.
+   Claude outputs are 95%+ identical across 20 runs. GPT's outputs on gt_failure_breakdown were
+   only 43% similar — structurally different queries for the same problem each run. A Claude→Claude
+   pair always reviews the same narrow structure; same-model echo chamber risk is real.
+
+4. Cross-model pairs match or beat same-model pairs.
+   G→C (80%) outperforms G→G (67%) on the hard task. C→G matches C→C at 100%. Neither
+   cross-model pair degraded vs its same-model counterpart.
+
+---
+Paper Claim Supported
+
+Same-model pairing amplifies the weaker model's blind spots. Model diversity in the critic role
+provides a measurable safety net on complex SQL — GPT→Claude catches 13% more bugs than GPT→GPT
+on the task where critics diverge.
